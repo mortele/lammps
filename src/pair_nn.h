@@ -21,6 +21,8 @@ PairStyle(nn,PairNN)
 #define LMP_PAIR_NN_H
 
 #include "pair.h"
+#include <armadillo>
+#include <vector>
 
 namespace LAMMPS_NS {
 
@@ -43,9 +45,9 @@ class PairNN : public Pair {
   double single(int, int, int, int, double, double, double, double &);
   void *extract(const char *, int &);
 
-  void compute_inner();
-  void compute_middle();
-  void compute_outer(int, int);
+  double network(double x);
+  double backPropagation();
+  void load(char* fileName);
 
  protected:
   double cut_global;
@@ -53,6 +55,20 @@ class PairNN : public Pair {
   double **epsilon,**sigma;
   double **lj1,**lj2,**lj3,**lj4,**offset;
   double *cut_respa;
+  std::ofstream outFile;
+  int m_layers;
+  int m_nodes;
+  int m_inputs;
+  int m_outputs;
+
+  std::vector<arma::mat> m_weights            = std::vector<arma::mat>();
+  std::vector<arma::mat> m_weightsTransposed  = std::vector<arma::mat>();
+  std::vector<arma::mat> m_biases             = std::vector<arma::mat>();
+  std::vector<arma::mat> m_preActivations     = std::vector<arma::mat>();
+  std::vector<arma::mat> m_activations        = std::vector<arma::mat>();
+  std::vector<arma::mat> m_derivatives        = std::vector<arma::mat>();
+  arma::mat sigmoid(arma::mat matrix);
+  arma::mat sigmoidDerivative(arma::mat matrix);
 
   virtual void allocate();
 };
